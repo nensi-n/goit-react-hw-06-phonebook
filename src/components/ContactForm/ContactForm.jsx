@@ -1,8 +1,13 @@
 import { useState } from "react";
 import "../ContactForm/ContactForm.css";
+import { addContact } from "../../redux/actions";
+import { useDispatch } from "react-redux";
+import shortid from "shortid";
 
-function ContactForm({ onSubmite }) {
+function ContactForm() {
   const [state, setState] = useState({ name: "", number: "" });
+
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -11,7 +16,8 @@ function ContactForm({ onSubmite }) {
 
   const handleSubmite = (e) => {
     e.preventDefault();
-    onSubmite(state);
+    // onSubmite(state);
+    dispatch(addContact({ ...state, id: shortid.generate() }));
     setState({ name: "", number: "" });
   };
 
