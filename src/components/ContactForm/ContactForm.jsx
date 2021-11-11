@@ -1,12 +1,15 @@
 import { useState } from "react";
 import "../ContactForm/ContactForm.css";
 import { addContact } from "../../redux/actions";
-import { useDispatch } from "react-redux";
+import { getContacts } from "../../redux/selectors";
+import { useSelector, useDispatch } from "react-redux";
 import shortid from "shortid";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function ContactForm() {
   const [state, setState] = useState({ name: "", number: "" });
-
+  const contacts = useSelector(getContacts);
   const dispatch = useDispatch();
 
   const handleChange = (e) => {
@@ -14,11 +17,31 @@ function ContactForm() {
     setState((prev) => ({ ...prev, [name]: value }));
   };
 
+  const checkRepeatName = (name) => {
+    return contacts.find(
+      (contact) => contact.name.toLowerCase() === name.toLowerCase()
+    );
+  };
+
+  const checkRepeatNumber = (number) => {
+    return contacts.find((contact) => contact.number === number);
+  };
+
   const handleSubmite = (e) => {
     e.preventDefault();
     // onSubmite(state);
-    dispatch(addContact({ ...state, id: shortid.generate() }));
-    setState({ name: "", number: "" });
+    if (checkRepeatName(state.name)) {
+      toast.info(`'${state.name}' is already in use!`, {
+        autoClose: 2500,
+      });
+    } else if (checkRepeatNumber(state.number)) {
+      toast.info(`🤔 ${state.number} is already in use`, {
+        autoClose: 2500,
+      });
+    } else {
+      dispatch(addContact({ ...state, id: shortid.generate() }));
+      setState({ name: "", number: "" });
+    }
   };
 
   return (
@@ -52,6 +75,7 @@ function ContactForm() {
       <button type="submit" className="submit-button">
         Add contact
       </button>
+      <ToastContainer />
     </form>
   );
 }
